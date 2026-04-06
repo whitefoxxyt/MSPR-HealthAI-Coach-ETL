@@ -16,21 +16,25 @@ Chaque pipeline suit le même flux : `extract → clean → export CSV → load 
 
 Les `INSERT` utilisent `ON CONFLICT DO NOTHING` donc le pipeline est idempotent on peut le relancer autant de fois qu'on veut sans doublon.
 
-## Lancer avec Docker (normal)
+## Lancer avec Docker
+
+Prerequis : le microservice MSPR-DB doit etre demarre en premier (il cree le reseau `mspr_data_network`).
 
 ```bash
-# Depuis la racine du projet
-docker compose up -d db
-docker compose --profile etl up etl
+# 1. Demarrer MSPR-DB (dans son repertoire)
+cd ../MSPR-DB && docker compose up -d
 
-# Logs en temps réel
+# 2. Revenir ici et lancer l'ETL
+cd ../MSPR-ETL && docker compose up -d
+
+# Logs en temps reel
 docker logs -f healthai_etl
 ```
 
-Par défaut le scheduler tourne les pipelines au démarrage puis toutes les nuits à 2h. Pour tester avec un interval court :
+Par defaut le scheduler tourne les pipelines au demarrage puis toutes les nuits a 2h. Pour tester avec un intervalle court :
 
 ```bash
-CRON_SCHEDULE="*/2 * * * *" docker compose --profile etl up etl
+CRON_SCHEDULE="*/2 * * * *" docker compose up etl
 ```
 
 ## Lancer en local (dev)
@@ -48,21 +52,21 @@ DB_HOST=localhost python scheduler.py
 
 ## Variables d'environnement
 
-| Variable        | Défaut                | Description                                 |
-| --------------- | --------------------- | ------------------------------------------- |
-| `DB_HOST`       | `db`                  | Hôte PostgreSQL (mettre `localhost` en dev) |
-| `DB_PORT`       | `5432`                |                                             |
-| `DB_NAME`       | `healthcoach`         |                                             |
-| `DB_USER`       | `healthcoach`         |                                             |
-| `DB_PASSWORD`   | `healthcoach`         |                                             |
-| `CRON_SCHEDULE` | `0 2 * * *`           | Expression cron pour la planification       |
-| `DATA_DIR`      | `/app/data/raw`       | Dossier des fichiers sources                |
-| `PROCESSED_DIR` | `/app/data/processed` | Exports CSV (rejects, clean)                |
+| Variable        | Defaut                | Description                                        |
+| --------------- | --------------------- | -------------------------------------------------- |
+| `DB_HOST`       | `mspr-healthai-db`    | Container name MSPR-DB (mettre `localhost` en dev) |
+| `DB_PORT`       | `5432`                |                                                    |
+| `DB_NAME`       | `healthai`            |                                                    |
+| `DB_USER`       | `healthai_user`       |                                                    |
+| `DB_PASSWORD`   | -                     | Obligatoire, definir dans `.env`                   |
+| `CRON_SCHEDULE` | `0 2 * * *`           | Expression cron pour la planification              |
+| `DATA_DIR`      | `/app/data/raw`       | Dossier des fichiers sources                       |
+| `PROCESSED_DIR` | `/app/data/processed` | Exports CSV (rejects, clean)                       |
 
-## Vérifier que ça a tourné
+## Verifier que ca a tourne
 
 ```bash
-docker exec healthai_db psql -U healthcoach -d healthcoach \
+docker exec mspr-healthai-db psql -U healthai_user -d healthai \
   -c "SELECT source_name, started_at, status, rows_inserted, rows_rejected FROM etl_logs ORDER BY started_at DESC LIMIT 10;"
 ```
 
