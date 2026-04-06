@@ -89,3 +89,20 @@ pytest -k "test_clean"                   # filtre par nom
 2. Créer l'extractor dans `extractors/` si besoin
 3. Créer le cleaner dans `cleaners/`
 4. Importer et ajouter dans `pipelines/__init__.py`
+
+## Inventaire des sources de donnees
+
+| Source | Fichier | Format | Lignes brutes | Tables cibles | Justification |
+|--------|---------|--------|---------------|---------------|---------------|
+| ExerciseDB | `exercisedb/exercises.json` | JSON | 1500 | `exercises` | Catalogue de reference open source : 1500 exercices avec muscles cibles, equipements et instructions |
+| Daily Food & Nutrition Dataset | `daily_food_nutrition_dataset.csv` | CSV | 650 | `nutrition_entries` | Couvre les principales categories alimentaires avec macronutriments complets (calories, proteines, lipides, glucides) |
+| Gym Members Exercise Dataset | `gym_members_exercise_tracking.csv` + `_synthetic_data.csv` | CSV | 973 + 1800 | `exercise_entries`, `biometric_entries` | Donnees de seances de sport et metriques corporelles (BPM, BMI, poids) simulant des profils utilisateurs reels |
+| Diet Recommendations Dataset | `diet_recommendations_dataset.csv` | CSV | 1000 | `diet_recommendations` | Profils sante avec recommandations dietetiques par pathologie, adaptes aux futurs modules IA de recommandation |
+| Faker (generateur) | - | - | ~50 users | `users` | Profils utilisateurs fictifs pour alimenter les FK et tester les relations entre tables |
+
+### Regles qualite appliquees
+
+- Les lignes avec des champs obligatoires manquants ou des valeurs hors domaine sont rejetees et exportees dans `data/processed/`
+- Les doublons sont geres par `ON CONFLICT DO NOTHING` en base
+- Chaque run est trace dans `etl_logs` avec le nombre de lignes lues, inserees et rejetees
+- Les frequences de mise a jour sont annuelles pour les datasets Kaggle ; ExerciseDB est versionne sur GitHub
