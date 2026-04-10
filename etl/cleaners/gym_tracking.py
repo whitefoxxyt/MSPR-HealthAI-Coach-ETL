@@ -18,6 +18,8 @@ NUMERIC_COLS = [
     "Avg_BPM",
     "Max_BPM",
     "Resting_BPM",
+    "Age",
+    "Experience_Level",
 ]
 
 BOUNDS_CHECKS = [
@@ -51,11 +53,15 @@ def clean(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
             "Avg_BPM": "heart_rate_avg",
             "Max_BPM": "heart_rate_max",
             "Resting_BPM": "heart_rate_rest",
+            "Age": "age",
+            "Gender": "gender",
+            "Experience_Level": "experience_level",
         }
     )
 
-    for col in ["heart_rate_avg", "heart_rate_max", "heart_rate_rest"]:
-        df[col] = df[col].round().astype("Int64")
+    for col in ["heart_rate_avg", "heart_rate_max", "heart_rate_rest", "age", "experience_level"]:
+        if col in df.columns:
+            df[col] = df[col].round().astype("Int64")
 
     valid, reasons = init_validation(df)
 

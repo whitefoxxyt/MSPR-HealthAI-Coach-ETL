@@ -12,11 +12,11 @@ def _require(name: str, default: str) -> str:
     return value
 
 
-DB_HOST = _require("DB_HOST", "db")
+DB_HOST = _require("DB_HOST", "mspr-healthai-db")
 DB_PORT = int(os.environ.get("DB_PORT", "5432") or "5432")
-DB_NAME = _require("DB_NAME", "healthcoach")
-DB_USER = _require("DB_USER", "healthcoach")
-DB_PASSWORD = _require("DB_PASSWORD", "healthcoach")
+DB_NAME = _require("DB_NAME", "healthai")
+DB_USER = _require("DB_USER", "healthai_user")
+DB_PASSWORD = _require("DB_PASSWORD", "password")
 
 DATA_DIR = os.environ.get("DATA_DIR", "/app/data/raw")
 PROCESSED_DIR = os.environ.get("PROCESSED_DIR", "/app/data/processed")

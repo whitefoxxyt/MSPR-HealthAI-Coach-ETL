@@ -15,6 +15,9 @@ def _make_df(overrides=None):
         "Avg_BPM": "140",
         "Max_BPM": "175",
         "Resting_BPM": "65",
+        "Age": "28",
+        "Gender": "Male",
+        "Experience_Level": "2",
     }
     if overrides:
         base.update(overrides)
@@ -95,3 +98,16 @@ class TestGymTrackingCleaner:
         assert "bmi" in clean_df.columns
         assert "fat_percentage" in clean_df.columns
         assert "heart_rate_rest" in clean_df.columns
+
+    def test_demographic_fields_mapped(self):
+        clean_df, _ = clean(_make_df())
+        assert clean_df.iloc[0]["age"] == 28
+        assert clean_df.iloc[0]["gender"] == "Male"
+        assert clean_df.iloc[0]["experience_level"] == 2
+
+    def test_missing_demographics_do_not_reject(self):
+        df = _make_df()
+        df = df.drop(columns=["Age", "Gender", "Experience_Level"])
+        clean_df, rejected_df = clean(df)
+        assert len(clean_df) == 1
+        assert len(rejected_df) == 0
