@@ -1,3 +1,4 @@
+import json
 import os
 import threading
 from contextlib import contextmanager
@@ -54,7 +55,11 @@ def get_cursor():
 def log_etl_run(
     name, started_at, finished_at, rows_read, rows_inserted, rows_rejected, status, details=None
 ):
-    """Écrit une entrée dans etl_logs."""
+    """Écrit une entrée dans etl_logs.
+
+    details : dict sérialisé en JSONB (stats par table, qualité, durée, erreur éventuelle).
+    """
+    details_json = json.dumps(details, ensure_ascii=False, default=str) if details else None
     try:
         with get_cursor() as cur:
             cur.execute(
@@ -73,7 +78,7 @@ def log_etl_run(
                     rows_rejected,
                     1 if status == "ERREUR" else 0,
                     status,
-                    details,
+                    details_json,
                 ),
             )
     except Exception as e:

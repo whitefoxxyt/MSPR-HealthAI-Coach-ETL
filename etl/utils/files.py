@@ -1,4 +1,6 @@
+import json
 import os
+from datetime import datetime
 
 import pandas as pd
 
@@ -41,3 +43,29 @@ def save_samples(name: str, raw: pd.DataFrame, clean: pd.DataFrame, n: int = 5):
         clean.head(n).to_json(clean_path, orient="records", force_ascii=False, indent=2)
 
     logger.info("[%s] samples (%d lignes) → %s", name, n, SAMPLES_DIR)
+
+
+def save_quality_report(results: list[dict]):
+    """Génère un rapport de qualité JSON global post-ETL dans data/processed/."""
+    if not results:
+        return
+    rows_read_total = sum(r["rows_read"] for r in results)
+    report = {
+        "generated_at": datetime.now().isoformat(),
+        "pipelines": results,
+        "totals": {
+            "rows_read": rows_read_total,
+            "rows_inserted": sum(r["rows_inserted"] for r in results),
+            "rows_rejected": sum(r["rows_rejected"] for r in results),
+            "rejection_rate": round(
+                sum(r["rows_rejected"] for r in results) / rows_read_total, 4
+            )
+            if rows_read_total
+            else 0,
+        },
+    }
+    os.makedirs(PROCESSED_DIR, exist_ok=True)
+    path = os.path.join(PROCESSED_DIR, "quality_report.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2, default=str)
+    logger.info("Rapport qualité → %s", path)

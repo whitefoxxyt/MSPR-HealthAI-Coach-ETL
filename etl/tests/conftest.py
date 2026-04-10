@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS etl_logs (
     rows_rejected INTEGER NOT NULL DEFAULT 0,
     error_count INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL,
-    details TEXT
+    details JSONB
 );
 """
 

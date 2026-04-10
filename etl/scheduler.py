@@ -8,6 +8,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from main import run_pipeline
 from pipelines import PIPELINES
+from utils.files import save_quality_report
 from utils.logger import get_logger
 
 logger = get_logger("scheduler")
@@ -18,8 +19,8 @@ SHUTDOWN_TIMEOUT = int(os.environ.get("SHUTDOWN_TIMEOUT", "600"))  # 10 minutes
 
 def run_all_pipelines():
     logger.info("Démarrage des pipelines ETL (schedulé)")
-    for pipeline in PIPELINES:
-        run_pipeline(pipeline)
+    results = [run_pipeline(pipeline) for pipeline in PIPELINES]
+    save_quality_report(results)
     logger.info("Tous les pipelines ETL terminés")
 
 

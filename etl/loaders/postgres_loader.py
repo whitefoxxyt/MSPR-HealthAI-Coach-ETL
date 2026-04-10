@@ -26,22 +26,25 @@ def _insert_rows(cur, table: str, columns: list[str], values: list[tuple], confl
     return len(results)
 
 
-def load(df: pd.DataFrame, tables: list[TableConfig], source: str | None = None) -> int:
-    """Charge un DataFrame dans une ou plusieurs tables PostgreSQL."""
+def load(df: pd.DataFrame, tables: list[TableConfig], source: str | None = None) -> dict[str, int]:
+    """Charge un DataFrame dans une ou plusieurs tables PostgreSQL.
+
+    Retourne un dict {nom_table: nb_lignes_insérées}.
+    """
     if df.empty:
-        return 0
+        return {}
 
     df = df.copy()
     if source:
         df["source"] = source
 
-    total = 0
+    counts: dict[str, int] = {}
     with get_cursor() as cur:
         for tc in tables:
             prep = df[tc.columns].astype(object).where(pd.notna(df[tc.columns]), None)
             values = list(prep.itertuples(index=False, name=None))
             inserted = _insert_rows(cur, tc.table, tc.columns, values, tc.conflict_clause)
             logger.info("Table %s : %d lignes insérées", tc.table, inserted)
-            total += inserted
+            counts[tc.table] = inserted
 
-    return total
+    return counts
