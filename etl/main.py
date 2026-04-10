@@ -14,9 +14,7 @@ logger = get_logger("etl")
 def _quality_stats(clean: pd.DataFrame, rejected: pd.DataFrame) -> dict:
     """Calcule les statistiques de qualité depuis les DataFrames clean et rejected."""
     null_counts = {
-        col: int(clean[col].isna().sum())
-        for col in clean.columns
-        if clean[col].isna().any()
+        col: int(clean[col].isna().sum()) for col in clean.columns if clean[col].isna().any()
     }
     rejection_reasons = {}
     if not rejected.empty and "reason" in rejected.columns:

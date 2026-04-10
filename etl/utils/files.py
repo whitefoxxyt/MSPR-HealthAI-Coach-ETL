@@ -57,9 +57,7 @@ def save_quality_report(results: list[dict]):
             "rows_read": rows_read_total,
             "rows_inserted": sum(r["rows_inserted"] for r in results),
             "rows_rejected": sum(r["rows_rejected"] for r in results),
-            "rejection_rate": round(
-                sum(r["rows_rejected"] for r in results) / rows_read_total, 4
-            )
+            "rejection_rate": round(sum(r["rows_rejected"] for r in results) / rows_read_total, 4)
             if rows_read_total
             else 0,
         },
