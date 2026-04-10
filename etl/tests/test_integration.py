@@ -49,7 +49,7 @@ class TestPostgresLoader:
     def test_load_inserts_rows(self, pg_conn, clean_tables):
         inserted = load(_exercise_df(), [EXERCISES_TABLE])
 
-        assert inserted == 1
+        assert inserted == {"exercises": 1}
         with pg_conn.cursor() as cur:
             cur.execute("SELECT external_id FROM exercises WHERE external_id = 'ex001'")
             assert cur.fetchone() is not None
@@ -58,14 +58,14 @@ class TestPostgresLoader:
         load(_exercise_df(), [EXERCISES_TABLE])
         inserted_second = load(_exercise_df(), [EXERCISES_TABLE])
 
-        assert inserted_second == 0
+        assert inserted_second == {"exercises": 0}
         with pg_conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM exercises")
             assert cur.fetchone()[0] == 1
 
     def test_load_empty_df_returns_zero(self, pg_conn, clean_tables):
         inserted = load(pd.DataFrame(), [EXERCISES_TABLE])
-        assert inserted == 0
+        assert inserted == {}
 
 
 class TestLogEtlRun:
