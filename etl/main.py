@@ -1,11 +1,7 @@
 from datetime import datetime
 
-import pandas as pd
-
-from generators import fake_users as user_generator
 from loaders.postgres_loader import load as pg_load
 from pipelines import PIPELINES
-from pipelines.faker_users import COUNT, TABLE
 from utils.db import log_etl_run
 from utils.files import save_clean, save_rejected, save_samples
 from utils.logger import get_logger
@@ -47,32 +43,6 @@ def run_pipeline(pipeline: dict):
         )
 
 
-def run_faker_pipeline():
-    """Génère des utilisateurs fictifs via Faker et les charge en base."""
-    started_at = datetime.now()
-    status = "OK"
-    details = None
-    rows_inserted = 0
-
-    try:
-        users = user_generator.generate(COUNT)
-        df = pd.DataFrame(users)
-        rows_inserted = pg_load(df, [TABLE])
-        logger.info("[faker_users] %d utilisateurs insérés", rows_inserted)
-
-    except Exception as e:
-        status = "ERREUR"
-        details = str(e)
-        logger.error("[faker_users] ERREUR : %s", e)
-
-    finally:
-        finished_at = datetime.now()
-        log_etl_run(
-            "faker_users", started_at, finished_at, COUNT, rows_inserted, 0, status, details
-        )
-
-
 if __name__ == "__main__":
     for pipeline in PIPELINES:
         run_pipeline(pipeline)
-    run_faker_pipeline()

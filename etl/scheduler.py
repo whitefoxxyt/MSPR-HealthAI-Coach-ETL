@@ -6,7 +6,7 @@ import threading
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from main import run_faker_pipeline, run_pipeline
+from main import run_pipeline
 from pipelines import PIPELINES
 from utils.logger import get_logger
 
@@ -20,7 +20,6 @@ def run_all_pipelines():
     logger.info("Démarrage des pipelines ETL (schedulé)")
     for pipeline in PIPELINES:
         run_pipeline(pipeline)
-    run_faker_pipeline()
     logger.info("Tous les pipelines ETL terminés")
 
 
