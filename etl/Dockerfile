@@ -2,6 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tini \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir --timeout=120 --retries=5 -r requirements.txt
 
@@ -15,4 +19,5 @@ USER etl
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
     CMD python healthcheck.py
 
+ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["python", "scheduler.py"]
