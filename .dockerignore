@@ -1,0 +1,14 @@
+.git
+.github
+.gitignore
+.gitattributes
+.dockerignore
+Dockerfile*
+docker-compose*
+README.md
+docs
+etl/.ruff_cache
+etl/tests
+data/processed
+data/samples
+*.md

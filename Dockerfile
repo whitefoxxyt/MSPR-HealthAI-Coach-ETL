@@ -6,12 +6,14 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends tini \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY etl/requirements.txt .
 RUN pip install --no-cache-dir --timeout=120 --retries=5 -r requirements.txt
 
-COPY . .
+COPY etl/ /app/
+COPY data/raw /app/data/raw
 
-RUN useradd --no-create-home --shell /bin/false etl \
+RUN mkdir -p /app/data/processed /app/data/samples \
+    && useradd --no-create-home --shell /bin/false etl \
     && chown -R etl:etl /app
 
 USER etl
