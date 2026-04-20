@@ -3,6 +3,7 @@ name: CI - ETL
 on:
   push:
     branches: [ "master", "main" ]
+    tags: ['v*.*.*']
   pull_request:
     branches: [ "master", "main" ]
 
@@ -83,3 +84,13 @@ jobs:
           DB_USER: healthcoach
           DB_PASSWORD: healthcoach
         run: cd etl && python -m pytest tests/ -m integration -v
+
+  publish:
+    name: Publication de l'image Docker
+    needs: [lint, test, test-integration]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+    uses: ./.github/workflows/docker-publish.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
